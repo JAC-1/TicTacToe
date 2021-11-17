@@ -10,16 +10,6 @@ module GetMove
 end
 
 module Won
-end
-
-class Game
-  include GetMove
-  @@board = [
-    ["X", "Y", "X"],
-    ["X", "X", "Y"],
-    [" ", " ", "X"],
-  ]
-
   def winHorizontal?()
     # Check each row. If there are three Xs or three Ys win.
     @@board.each do |line|
@@ -116,6 +106,50 @@ class Game
       end
     end
   end
+end
+
+module BetterWinModule
+  def win(board)
+    (0..2).each do |r|
+      # Horizontal check
+      if board[r][0] == "X" && board[r][1] == "X" && board[r][2] == "X"
+        return "X"
+      elsif board[r][0] == "Y" && board[r][1] == "Y" && board[r][2] == "Y"
+        return "Y"
+        # Vertical check
+      elsif board[0][r] == "Y" && board[1][r] == "Y" && board[2][r] == "Y"
+        return "Y"
+      elsif board[0][r] == "X" && board[1][r] == "X" && board[2][r] == "X"
+        return "X"
+        # Diagonal Left to Right check
+      elsif board[r][r] == "X" && board[r + 1][r + 1] == "X" && board[r + 2][r + 2] == "X"
+        return "X"
+      elsif board[r][r] == "Y" && board[r + 1][r + 1] == "Y" && board[r + 2][r + 2] == "Y"
+        return "Y"
+        # Diagonal Right to Left check
+      elsif board[r][r + 2] == "Y" && board[r + 1][r + 1] == "Y" && board[r + 2][r] == "Y"
+        return "Y"
+      elsif board[r][r + 2] == "X" && board[r + 1][r + 1] == "X" && board[r + 2][r] == "X"
+        return "X"
+      else
+        return false
+      end
+    end
+  end
+end
+
+class Game
+  include GetMove
+  include BetterWinModule
+  @@board = [
+    [" ", "Y", "X"],
+    ["X", "X", "Y"],
+    ["X", " ", "X"],
+  ]
+
+  def board()
+    return @@board
+  end
 
   def display()
     puts "    0    1    2"
@@ -158,11 +192,8 @@ player1 = Player.new(name1)
 win = false
 while win != true
   puts "#{player1.name}'s move"
-  if game1.winHorizontal?()
-    puts "Game won!"
-    break
-  elsif game1.winVertical?()
-    puts "Game won!"
+  if game1.win(game1.board)
+    puts "#{game1.win(game1.board)} wins !"
     break
   end
   player1Move = player1.placeMarker(game1.getMove())
